@@ -1,0 +1,21 @@
+[project]
+name = "shiori"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Brayden M", email = "locke.apogee@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "ebooklib>=0.20",
+    "pypdf>=6.13.0",
+    "pytest>=9.0.3",
+]
+
+[project.scripts]
+shiori = "shiori:main"
+
+[build-system]
+requires = ["uv_build>=0.11.18,<0.12.0"]
+build-backend = "uv_build"
