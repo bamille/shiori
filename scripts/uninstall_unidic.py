@@ -5,8 +5,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-
-SHIORI_UNIDIC_DIR = Path(__file__).resolve().parents[1] / "data" / "unidic"
+from .utils import SHIORI_UNIDIC_DIR
 
 
 def main() -> None:

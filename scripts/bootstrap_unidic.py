@@ -21,10 +21,9 @@ from typing import Callable
 from urllib.error import URLError
 from urllib.request import urlopen, urlretrieve
 
+from .utils import SHIORI_UNIDIC_DIR, DICT_INFO_URL, SHIORI_UNIDIC_VERSION_FILE
 
-SHIORI_UNIDIC_DIR = Path(__file__).resolve().parents[1] / "data" / "unidic"
-DICT_INFO_URL = "https://raw.githubusercontent.com/polm/unidic-py/master/dicts.json"
-SHIORI_UNIDIC_VERSION_FILE = SHIORI_UNIDIC_DIR / ".shiori-unidic-version"
+
 ProgressCallback = Callable[[int, int], None]
 
 
@@ -101,7 +100,7 @@ def _move_dictionary_tree(source_root: Path) -> None:
     source_dir = candidates[0]
     if SHIORI_UNIDIC_DIR.exists():
         shutil.rmtree(SHIORI_UNIDIC_DIR)
-        
+
     # if interrupted could lead to partial transfer/cleanup required
     shutil.move(str(source_dir), SHIORI_UNIDIC_DIR)
 
