@@ -2,3 +2,8 @@
 *.epub
 /data/*
 *.DS_Store
+
+# Ignore all __pycache__ directories and their contents anywhere in the repo
+__pycache__/
+**/__pycache__/
+*.pyc
