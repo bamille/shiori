@@ -3,7 +3,7 @@ from pathlib import Path
 from shiori import Book
 
 
-SAMPLE = Path("src/shiori/test/test1.epub")
+SAMPLE = Path("src/shiori/test_sources/test1.epub")
 
 
 def test_sample_exists():

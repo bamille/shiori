@@ -9,6 +9,7 @@ from typing import Any
 
 from ebooklib import ITEM_DOCUMENT, epub
 
+from .parse import Word
 
 @dataclass(slots=True)
 class Chapter:
@@ -24,6 +25,7 @@ class Chapter:
 	title: str | None
 	href: str | None
 	text: str
+	words: list[Word] = field(default_factory=list)
 
 
 class _HTMLTextExtractor(HTMLParser):
