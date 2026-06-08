@@ -3,7 +3,9 @@ import argparse
 import json
 from pathlib import Path
 
+from .ankiconnect import cmd_export_note_type
 from .ingest import Book
+from .paths import PROJECT_ROOT
 
 def _load_book(path: str) -> Book:
     p = Path(path)
@@ -42,6 +44,21 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("epub", help="Path to EPUB file")
     p.add_argument("-o", "--output", help="Write text to file (stdout if omitted)")
     p.set_defaults(func=cmd_extract)
+
+    p = sub.add_parser(
+        "dump-note-type",
+        help="Export a note type from a running Anki instance to note_types JSON",
+    )
+    p.add_argument("--host", default="127.0.0.1", help="AnkiConnect host")
+    p.add_argument("--port", type=int, default=8765, help="AnkiConnect port")
+    p.add_argument("--note-type", help="Note type name or numeric index from list")
+    p.add_argument(
+        "--output-dir",
+        default=str(PROJECT_ROOT / "src" / "shiori" / "anki_templates" / "note_types"),
+        help="Directory to write note type JSON into",
+    )
+    p.add_argument("--force", action="store_true", help="Overwrite existing file if it exists")
+    p.set_defaults(func=cmd_export_note_type)
 
     args = parser.parse_args(argv)
     args.func(args)

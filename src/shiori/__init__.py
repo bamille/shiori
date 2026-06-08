@@ -1,5 +1,6 @@
+from .cli import main as cli_main
 from .ingest import Book, Chapter
 
 
-def main() -> None:
-    print("Hello from shiori!")
+def main(argv: list[str] | None = None) -> int:
+    return cli_main(argv)
