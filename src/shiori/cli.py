@@ -7,6 +7,34 @@ from .ankiconnect import cmd_export_note_type
 from .ingest import Book
 from .paths import PROJECT_ROOT
 
+
+def cmd_review(args: argparse.Namespace) -> int:
+    from .card_builder import AnkiCardBuilder
+    from .known_words import KnownWords
+    from .tui import ReviewApp
+
+    known_words_path = Path(args.known_words).expanduser() if args.known_words else None
+    known_words = KnownWords(known_words_path)
+
+    try:
+        card_builder = AnkiCardBuilder()
+    except FileNotFoundError as exc:
+        print(f"Error: {exc}")
+        print("Run 'uv run python scripts/download_jitendex.py' to download the dictionary.")
+        return 1
+
+    epub_path = Path(args.epub).expanduser() if args.epub else None
+    output_path = Path(args.output).expanduser()
+
+    app = ReviewApp(
+        output_path=output_path,
+        known_words=known_words,
+        card_builder=card_builder,
+        epub_path=epub_path,
+    )
+    app.run()
+    return 0
+
 def _load_book(path: str) -> Book:
     p = Path(path)
     return Book.from_epub(p)
@@ -60,6 +88,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--force", action="store_true", help="Overwrite existing file if it exists")
     p.set_defaults(func=cmd_export_note_type)
 
+    p = sub.add_parser("review", help="Interactive word review and Anki card creation")
+    p.add_argument("epub", nargs="?", help="Path to EPUB file (optional, can be entered in the app)")
+    p.add_argument("-o", "--output", default="shiori_cards.apkg", help="Output .apkg file (default: shiori_cards.apkg)")
+    p.add_argument("--known-words", help="Path to known words JSON (default: ~/.shiori/known_words.json)")
+    p.set_defaults(func=cmd_review)
+
     args = parser.parse_args(argv)
-    args.func(args)
-    return 0
+    return args.func(args) or 0

@@ -61,7 +61,13 @@ class Parser:
         self._tagger = get_tagger()
 
     def tokenize(self, input: Chapter | str) -> list[Word]:
-        text = input.text if isinstance(input, Chapter) else str(input)
+        # Avoid importing Chapter at runtime (circular import); duck-type instead.
+        if isinstance(input, str):
+            text = input
+            chapter = None
+        else:
+            text = input.text
+            chapter = input
         tokens = list(self._tagger(text))
         sentences = self._split_sentences(tokens)
 
@@ -70,8 +76,8 @@ class Parser:
             sentence_words = self._words_for_sentence(sentence_tokens)
             words.extend(sentence_words)
 
-        if isinstance(input, Chapter):
-            input.words = words
+        if chapter is not None:
+            chapter.words = words
 
         return words
 

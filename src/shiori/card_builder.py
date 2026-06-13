@@ -103,6 +103,16 @@ class AnkiCardBuilder:
             logger.warning("Word '%s' not found in dictionary", word.lexeme)
             return None
         entry = results[0]
+        return self.build_card_data_for_entry(word, entry, source)
+
+    def build_card_data_for_entry(
+        self, word: Word, entry: dict[str, Any], source: str = ""
+    ) -> dict[str, str]:
+        """Return a source-keyed data dict built from a specific dictionary entry.
+
+        Used by the TUI when the user selects a specific definition from multiple
+        lookup results rather than defaulting to the first one.
+        """
         return {
             "word.lexeme": word.lexeme,
             "word.original": word.original or word.lexeme,
@@ -122,6 +132,17 @@ class AnkiCardBuilder:
         card_data = self.build_card_data(word, source)
         if card_data is None:
             return None
+        field_values = [
+            card_data.get(self.field_mapping.get(name, ""), "")
+            for name in self._field_names
+        ]
+        return genanki.Note(model=self.model, fields=field_values)
+
+    def create_card_for_entry(
+        self, word: Word, entry: dict[str, Any], source: str = ""
+    ) -> genanki.Note:
+        """Create an Anki note from a specific dictionary entry chosen by the user."""
+        card_data = self.build_card_data_for_entry(word, entry, source)
         field_values = [
             card_data.get(self.field_mapping.get(name, ""), "")
             for name in self._field_names

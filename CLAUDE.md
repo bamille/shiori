@@ -32,6 +32,7 @@ uv run python scripts/download_jitendex.py
 - `shiori list <epub>` — list chapter titles
 - `shiori extract <epub> [-o output.txt]` — dump full text
 - `shiori dump-note-type [--note-type NAME] [--force]` — export an Anki note type from a running Anki instance (requires AnkiConnect on port 8765)
+- `shiori review [epub] [-o cards.apkg] [--known-words path]` — launch the interactive Textual TUI for word review and card creation
 
 ## Data dependencies
 
@@ -53,6 +54,8 @@ ingest.py        EPUB → Book / Chapter (text extraction)
 parse.py         Chapter/str → [Word]  (MeCab tokenization + sentence splitting)
 lookup.py        str → [dict]          (Yomitan ZIP dictionary lookup)
 card_builder.py  Word → genanki.Note   (Anki card assembly)
+known_words.py   set[str] persisted to ~/.shiori/known_words.json
+tui.py           Textual TUI (BookLoadScreen → ChapterSelectScreen → WordReviewScreen)
 ankiconnect.py   AnkiConnect API       (export note types from running Anki)
 cli.py           argparse entry points
 paths.py         PROJECT_ROOT, SHIORI_UNIDIC_DIR constants
@@ -69,3 +72,9 @@ paths.py         PROJECT_ROOT, SHIORI_UNIDIC_DIR constants
 **Anki note type**: `AnkiCardBuilder` reads a note type JSON exported from Anki (default `src/shiori/anki_templates/note_types/Lapis.json`). Field mapping is done by exact name (`Expression`, `Reading`, `Meaning`, `Sentence`, `Source`). Use `shiori dump-note-type` to export other note types into that same directory.
 
 **Word dataclass**: `Word.original` is the lemma (dictionary form); `Word.lexeme` is the surface form as it appears in the text. `Word.is_eos` marks the last token of its sentence.
+
+**Known words**: `KnownWords` in `known_words.py` stores lemmas (`Word.original`), not surface forms, so all conjugations of a word are covered by a single entry. Stored as a sorted JSON array at `~/.shiori/known_words.json` (overridable via `--known-words`). Saved immediately on each "mark known" action.
+
+**TUI word filtering**: `WordReviewScreen._build_review_entries()` deduplicates by lemma, skips words already in `KnownWords`, and skips any word with no dictionary entry. Lookup tries `Word.original` (lemma) first, then falls back to `Word.lexeme` (surface). Chapter parsing runs in a thread via `asyncio.to_thread` so the UI stays responsive. Cards accumulate in the `AnkiCardBuilder` deck and are written as a single `.apkg` on save.
+
+**TUI review keybindings**: `←`/`→` cycle dictionary definitions, `Enter` adds a card for the current definition, `K` marks word as known, `D` defers (skips without marking), `Q` saves the deck and returns to the chapter list.
