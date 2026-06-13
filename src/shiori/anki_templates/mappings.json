@@ -1,0 +1,11 @@
+{
+  "target": "Lapis",
+  "description": "Field mapping for Shiori → Lapis note type. Keys are exact Anki field names; values are Shiori source keys.",
+  "field_mapping": {
+    "Expression": "word.lexeme",
+    "ExpressionReading": "jitendex.reading",
+    "MainDefinition": "jitendex.definition",
+    "Sentence": "word.context",
+    "MiscInfo": "metadata.source"
+  }
+}
